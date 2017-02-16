@@ -21,25 +21,22 @@ int main()
     float B[10][10];
     float div, mult;
 
-    // Prompt for matrix size
-    printf( "\nInput the number of items: ");
-    scanf("%d", &size);
+//************* Program Input ************************
+    printf( "\nInput the number of items: ");       //
+    scanf("%d", &size);                             //
+                                                    //
+    printf ("\nInput matrix A: \n");                //
+    for(int i = 0; i < size; i++)                   //
+        for(int j = 0; j < size; j++)               //
+            scanf("%f", &A[i][j]);                  //
+                                                    //
+    printf ("\nInput matrix B: \n");                //
+    for(int i = 0; i < size; i++)                   //
+        scanf("%f", &B[i][j]);                      //
+//****************************************************
 
-    // Input matrix A
-    printf ("\nInput matrix A: \n");
-    for(int i = 0; i < size; i++)
-        for(int j = 0; j < size; j++)
-            scanf("%f", &A[i][j]);
-
-    // Input Matrix B
-    printf ("\nInput matrix B: \n");
-    for(int i = 0; i < size; i++)
-        scanf("%f", &B[i][j]);
-
-    // Populate inverse
     for(int i = 0; i < size; i++) {
 
-        // Select Pivot
         div = A[i][i];
 
         for(int j = 0; j < size; j++) {
@@ -58,7 +55,7 @@ int main()
             }
         }
     }
-
+//************ Output ******************
     printf( "\nThe X values are: \n");
     for(int i = 0; i < size; i++) {
             printf("%.6f \n", B[i][j]);
