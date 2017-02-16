@@ -1,25 +1,48 @@
-/*
- * Author: Travis Hoover
- * Course: CSCI 4330
- * Professor: Dr. Pettey
- * Date: 2/15/2017
- *
- * This program will use a modified version of Gaussian Elimination to determine the
- * inverse of matrices. The program will also use pthreads for concurrent computing
- * */
-
-
-//USE 2 CONDITION VARIABLES AND ONE MUTEX
 
 #include <stdio.h>
+#include <pthread.h>
 
+int size;
+float A[10][10];
+float B[10];
+float mult;
+
+pthread_mutex_t lock;
+
+struct thread_arg {
+    int id;
+    float div;
+};
+
+void *calculate(void *arg) {
+    struct thread_arg * input = arg;
+    int id = input->id;
+    float div = input->div;
+
+        pthread_mutex_lock(&lock);
+        for(int i = 0; i < size; i++) {
+            A[id][i] /= div;
+        }
+        B[id] /= div;
+
+        for(int j = 0; j < size; j++) {
+            if(j != id) {
+                mult = A[j][id];
+                for(int k = 0; k < size; k++) {
+                    A[j][k] -= mult * A[id][k];
+                }
+                B[j] -= mult * B[id];
+            }
+        }
+        pthread_mutex_unlock(&lock);
+
+    printf("%.6f \n", B[id]);
+
+    return 0;
+};
 
 int main()
 {
-    int size, j;
-    float A[10][10];
-    float B[10][10];
-    float div, mult;
 
 //************* Program Input ************************
     printf( "\nInput the number of items: ");       //
@@ -32,34 +55,18 @@ int main()
                                                     //
     printf ("\nInput matrix B: \n");                //
     for(int i = 0; i < size; i++)                   //
-        scanf("%f", &B[i][j]);                      //
+        scanf("%f", &B[i]);                         //
 //****************************************************
 
-    for(int i = 0; i < size; i++) {
+    struct thread_arg args[size];
+    pthread_t thread[size];
 
-        div = A[i][i];
-
-        for(int j = 0; j < size; j++) {
-            A[i][j] /= div;
-        }
-        B[i][j] /= div;
-
-        for(int k = 0; k < size; k++) {
-            if(k != i) {
-
-                mult = A[k][i];
-                for(int j = 0; j < size; j++) {
-                    A[k][j] -= (mult * A[i][j]);
-                }
-                *B[k] -= (mult * (*B[i]));
-            }
-        }
-    }
-//************ Output ******************
     printf( "\nThe X values are: \n");
     for(int i = 0; i < size; i++) {
-            printf("%.6f \n", B[i][j]);
+        args[i].id = i;
+        args[i].div = A[i][i];
+        pthread_create(&thread[i], NULL, &calculate, &args[i]);
+        pthread_join(thread[i], NULL);
     }
-
     return 0;
 }
